@@ -2,6 +2,50 @@ use std::env;
 use std::error::Error;
 use std::fs;
 
+pub fn run_largest_examples() {
+    let number_list = vec![34, 50, 25, 100, 65];
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+    let result = largest(&char_list);
+    println!("The largest char is {}", result);
+}
+
+pub fn largest<T: PartialOrd>(list: &[T]) -> &T {
+    let mut largest = &list[0];
+
+    for item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+    largest
+}
+
+pub fn run_vector_examples() {
+    let mut v = vec![1, 2, 3];
+    let third: &i32 = &v[2];
+    println!("The third number is {third}");
+    v.push(4);
+
+    let third: Option<&i32> = v.get(2);
+    match third {
+        Some(third) => println!("The third number is {third}"),
+        None => println!("There is no third number."),
+    }
+
+    println!("{:?}", v);
+
+    let mut v = vec![100, 32, 57];
+    for n_ref in &mut v {
+        *n_ref += 50;
+        println!("{n_ref}");
+    }
+
+    println!("{:?}", v);
+}
+
 pub struct Config {
     pub query: String,
     pub file_path: String,
@@ -9,13 +53,16 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
-
-        let query = args[1].clone();
-        let file_path = args[2].clone();
+    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+        args.next();
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file path"),
+        };
 
         let ignore_case = env::var("IGNORE_CASE").is_ok();
 
@@ -44,28 +91,17 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);
-        }
-    }
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let query = query.to_lowercase();
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
-            results.push(line);
-        }
-    }
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.to_lowercase().contains(&query.to_lowercase()))
+        .collect()
 }
 
 #[cfg(test)]
