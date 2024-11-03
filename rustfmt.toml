@@ -1,0 +1,13 @@
+# rustfmt.toml
+
+# Maximum width of each line
+max_width = 100
+
+# Use spaces instead of tabs
+hard_tabs = false
+
+# Number of spaces per tab
+tab_spaces = 4
+
+# Format code in a more compact style
+compact_control_flow = true

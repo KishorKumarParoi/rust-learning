@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["largest","run","run_largest_examples","run_vector_examples","search","search_case_insensitive"],"struct":["Config"]};
